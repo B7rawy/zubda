@@ -625,6 +625,13 @@ private struct SonioxKeyField: View {
             HStack {
                 SecureField("Soniox API key", text: $key, prompt: Text("snx_…"))
                     .onSubmit(save)
+                Button("Paste") {
+                    if let text = NSPasteboard.general.string(forType: .string) {
+                        key = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                        save()
+                    }
+                }
+                .help("Paste the key you copied from console.soniox.com")
                 Button(saved ? "Saved" : "Save", action: save).disabled(key.isEmpty || saved)
             }
             Text("Words show up in under a second, and your Mac stays cool. The audio is sent to Soniox while you record (about $0.12 an hour per voice track, billed to your Soniox account). The final transcript after the meeting is still made on this Mac. If the key is missing, out of credit or offline, the app switches to this Mac by itself. Get a key at console.soniox.com.")
