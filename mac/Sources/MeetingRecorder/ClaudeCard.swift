@@ -10,7 +10,10 @@ struct ClaudeCard: View {
     @State private var code = ConfigStore.claudeCodeConnected
     @State private var connecting = false
 
-    static let testPrompt = "استخدم Zubda وقولّي في سطرين: شايف كام ميتنج، وآخر ميتنج كان مع مين وإمتى وكان عن إيه."
+    static let testPrompt = "استخدم Zubda واعرضلي بشكل مرئي (كروت أو ويدجت): شايف كام ميتنج، وآخر ميتنج كان مع مين وإمتى وكان عن إيه."
+
+    /// Added to every question, so the answer comes back as visuals, not a wall of text.
+    static let visualHint = " اعرض الرد بشكل مرئي ومنظم: ويدجت أو كروت أو جدول، مش فقرات طويلة."
 
     private var prompts: [String] {
         var list = ["لخصلي آخر ميتنج", "إيه الوعود اللي عليّا الأسبوع ده؟", "العميل طلب إيه في آخر ٣ ميتنجات؟"]
@@ -105,7 +108,8 @@ struct ClaudeCard: View {
         // A Claude Code session in Claude Desktop, working in the meetings folder; Code has the
         // zubda connector too, and can open the meeting files themselves.
         var parts = URLComponents(string: "claude://code/new")!
-        parts.queryItems = [URLQueryItem(name: "q", value: prompt),
+        let question = prompt == Self.testPrompt ? prompt : prompt + Self.visualHint
+        parts.queryItems = [URLQueryItem(name: "q", value: question),
                             URLQueryItem(name: "folder", value: Recorder.meetingsFolder.path)]
         if let url = parts.url { NSWorkspace.shared.open(url) }
     }

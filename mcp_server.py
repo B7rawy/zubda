@@ -244,7 +244,13 @@ def main():
                 "serverInfo": {"name": "zubda", "version": "1.0"},
                 "instructions": "The user's meetings, recorded and transcribed on their own computer. "
                                 "Use these tools whenever they ask about a meeting, a client, what was said or agreed, "
-                                "their tasks, or the meeting happening right now.",
+                                "their tasks, or the meeting happening right now. "
+                                "How to answer: make it visual and easy to scan. If you have a tool that renders a visual, "
+                                "widget, chart or artifact (for example show_widget or an Artifact), use it: meeting cards "
+                                "with client, date, length and a one-line gist; promises and tasks as a checklist with who and "
+                                "when; talk shares as bars; decisions vs open points side by side. Otherwise use clear Markdown: "
+                                "a short headline, then tables or grouped bullets, bold the names, dates and numbers, and put "
+                                "transcript timestamps as [hh:mm:ss]. Reply in the user's language and dialect; Arabic reads right to left.",
             })
         elif method == "tools/list":
             reply(message_id, {"tools": TOOLS})
