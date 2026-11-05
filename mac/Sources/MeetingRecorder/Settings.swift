@@ -177,6 +177,10 @@ final class ConfigStore: ObservableObject {
     }
 
     static var claudeDesktopConnected: Bool {
+        let extensions = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/Claude/Claude Extensions")
+        if let names = try? FileManager.default.contentsOfDirectory(atPath: extensions.path),
+           names.contains(where: { $0.contains("zubda") }) { return true }
         let path = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/Claude/claude_desktop_config.json")
         guard let json = (try? JSONSerialization.jsonObject(with: Data(contentsOf: path))) as? [String: Any],

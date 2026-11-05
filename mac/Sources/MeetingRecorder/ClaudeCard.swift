@@ -1,22 +1,16 @@
 import AppKit
 import SwiftUI
 
-/// Home's Claude card: is Claude connected, can it really see the meetings (a one-question
-/// test through the connector), and ready questions to send to Claude Desktop.
+/// Home's Claude card: is Claude connected, and questions that open in Claude Desktop itself
+/// (a test question first), so the user sees their own Claude read the meetings.
 struct ClaudeCard: View {
     @ObservedObject var recorder: Recorder
     @ObservedObject var config = ConfigStore.shared
     @State private var desktop = ConfigStore.claudeDesktopConnected
     @State private var code = ConfigStore.claudeCodeConnected
     @State private var connecting = false
-    @State private var test: TestState = .idle
-    @State private var copied: String?
 
-    enum TestState: Equatable {
-        case idle, running
-        case passed(String)
-        case failed(String)
-    }
+    static let testPrompt = "استخدم Zubda وقولّي في سطرين: شايف كام ميتنج، وآخر ميتنج كان مع مين وإمتى وكان عن إيه."
 
     private var prompts: [String] {
         var list = ["لخصلي آخر ميتنج", "إيه الوعود اللي عليّا الأسبوع ده؟", "العميل طلب إيه في آخر ٣ ميتنجات؟"]
@@ -44,14 +38,12 @@ struct ClaudeCard: View {
                     Button(connecting ? "Connecting…" : "Connect") { connect() }.disabled(connecting)
                 }
                 Button {
-                    runTest()
+                    send(Self.testPrompt)
                 } label: {
-                    Label(test == .running ? "Asking Claude…" : "Test with Claude", systemImage: "checkmark.bubble")
+                    Label("Test in Claude Desktop", systemImage: "checkmark.bubble")
                 }
-                .disabled(test == .running || (!desktop && !code))
+                .help("Opens Claude Desktop with a question about your meetings; press Return there")
             }
-
-            if test != .idle { result }
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("ASK CLAUDE DESKTOP").font(.system(size: 10.5, weight: .semibold)).tracking(0.6).foregroundStyle(.secondary)
@@ -59,7 +51,7 @@ struct ClaudeCard: View {
                     ForEach(prompts, id: \.self) { prompt in
                         Button { send(prompt) } label: {
                             HStack(spacing: 6) {
-                                Image(systemName: copied == prompt ? "checkmark" : "arrow.up.forward.app")
+                                Image(systemName: "arrow.up.forward.app")
                                     .font(.system(size: 10.5, weight: .semibold))
                                 Text(prompt).font(.system(size: 12.5))
                             }
@@ -69,41 +61,18 @@ struct ClaudeCard: View {
                             .environment(\.layoutDirection, .rightToLeft)
                         }
                         .buttonStyle(.plain)
-                        .help("Copies the question and opens Claude Desktop; paste it with ⌘V")
+                        .help("Opens a new chat in Claude Desktop with this question; press Return there")
                     }
                 }
-                if copied != nil {
-                    Text("Copied. Paste it in Claude Desktop with ⌘V.").font(.system(size: 11.5)).foregroundStyle(.secondary)
-                }
+                Text("Opens a new chat in Claude Desktop with the question written; press Return to send.")
+                    .font(.system(size: 11.5)).foregroundStyle(.secondary)
             }
         }
         .padding(18)
         .card()
         .onAppear(perform: refresh)
-    }
-
-    @ViewBuilder private var result: some View {
-        HStack(alignment: .top, spacing: 10) {
-            switch test {
-            case .running:
-                ProgressView().controlSize(.small)
-                Text("Asking Claude what it can see in your meetings…").font(.system(size: 12.5)).foregroundStyle(.secondary)
-            case .passed(let answer):
-                Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
-                Text(answer.hasPrefix("✓") ? String(answer.dropFirst()).trimmingCharacters(in: .whitespaces) : answer)
-                    .font(.system(size: 13))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .environment(\.layoutDirection, answer.unicodeScalars.contains { (0x0600...0x06FF).contains($0.value) } ? .rightToLeft : .leftToRight)
-            case .failed(let error):
-                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-                Text(error).font(.system(size: 12.5)).foregroundStyle(.secondary)
-            case .idle:
-                EmptyView()
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.primary.opacity(0.04)))
+        // Coming back from Claude Desktop after clicking Install on the extension.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in refresh() }
     }
 
     private func status(_ name: String, _ on: Bool) -> some View {
@@ -130,26 +99,12 @@ struct ClaudeCard: View {
         }
     }
 
-    private func runTest() {
-        test = .running
-        Task {
-            let (ok, text) = await Transcriber.checkClaude()
-            test = ok ? .passed(text) : .failed(text)
-        }
-    }
-
-    /// Copies the question and brings Claude Desktop forward, ready for ⌘V.
+    /// A new Claude Desktop chat with the question already written (its claude:// link); the
+    /// user reads it and presses Return, so nothing is sent without them.
     private func send(_ prompt: String) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(prompt, forType: .string)
-        copied = prompt
-        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.anthropic.claudefordesktop") {
-            NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
-        }
-        Task {
-            try? await Task.sleep(for: .seconds(6))
-            if copied == prompt { copied = nil }
-        }
+        var parts = URLComponents(string: "claude://claude.ai/new")!
+        parts.queryItems = [URLQueryItem(name: "q", value: prompt)]
+        if let url = parts.url { NSWorkspace.shared.open(url) }
     }
 }
 
