@@ -1,0 +1,5 @@
+# Build output
+mac/.build/
+mac/build/
+__pycache__/
+.DS_Store

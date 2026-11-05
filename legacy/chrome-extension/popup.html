@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>مسجّل الميتنج</title>
+<style>
+  :root {
+    --bg: #ffffff; --text: #1f1f1f; --muted: #5f6368; --line: #e3e3e3;
+    --red: #d93025; --red-text: #ffffff; --soft: #f1f3f4; --warn: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #202124; --text: #e8eaed; --muted: #9aa0a6; --line: #3c4043;
+      --red: #ea4335; --red-text: #ffffff; --soft: #303134; --warn: #f28b82;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    width: 300px; margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+    font: 14px/1.6 system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  }
+  h1 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+  button {
+    width: 100%; padding: 10px; border: 0; border-radius: 8px; cursor: pointer;
+    font: inherit; font-weight: 600; background: var(--soft); color: var(--text);
+  }
+  button:disabled { cursor: default; opacity: .5; }
+  #main { background: var(--red); color: var(--red-text); }
+  #mic, #room { margin-top: 8px; font-weight: 500; }
+  #timer {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; direction: ltr; justify-content: flex-end;
+  }
+  #dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) { #dot { animation: none; } }
+  p { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+  p.warn { color: var(--warn); }
+  code { direction: ltr; unicode-bidi: embed; overflow-wrap: anywhere; font-size: 12px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+  <h1>مسجّل الميتنج</h1>
+  <div id="timer" hidden><span id="time">00:00:00</span><span id="dot"></span></div>
+  <button id="main" disabled>سجّل ميتنج جوجل ميت</button>
+  <button id="room" hidden>سجّل ميتنج حضوري</button>
+  <button id="mic" hidden></button>
+  <p id="message" hidden></p>
+  <script src="popup.js"></script>
+</body>
+</html>

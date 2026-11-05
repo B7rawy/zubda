@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>تشغيل مسجّل الميتنج</title>
+<style>
+  :root { --bg: #f8f9fa; --card: #ffffff; --text: #1f1f1f; --muted: #5f6368; --accent: #d93025; --ok: #188038; --warn: #b3261e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #17181a; --card: #202124; --text: #e8eaed; --muted: #9aa0a6; --accent: #ea4335; --ok: #81c995; --warn: #f28b82; }
+  }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+    background: var(--bg); color: var(--text); font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  }
+  main { width: 100%; max-width: 460px; padding: 28px; border-radius: 14px; background: var(--card); box-sizing: border-box; }
+  h1 { margin: 0 0 8px; font-size: 22px; }
+  p { margin: 0 0 18px; color: var(--muted); }
+  button { padding: 11px 20px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  #result { margin: 16px 0 0; font-weight: 500; }
+  #result.ok { color: var(--ok); }
+  #result.fail { color: var(--warn); }
+</style>
+</head>
+<body>
+  <main>
+    <h1>خطوة واحدة وتبدأ</h1>
+    <p>الإضافة محتاجة إذن المايك عشان تسجّل صوتك في الميتنج. التسجيلات بتتحفظ على جهازك بس.</p>
+    <button id="grant">اسمح بالمايك</button>
+    <p id="result" hidden></p>
+  </main>
+  <script src="welcome.js"></script>
+</body>
+</html>
