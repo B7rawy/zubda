@@ -42,11 +42,11 @@ struct ClaudeCard: View {
                 } label: {
                     Label("Test in Claude Desktop", systemImage: "checkmark.bubble")
                 }
-                .help("Opens Claude Desktop with a question about your meetings; press Return there")
+                .help("Opens a Claude Code session with a question about your meetings; press Return there")
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("ASK CLAUDE DESKTOP").font(.system(size: 10.5, weight: .semibold)).tracking(0.6).foregroundStyle(.secondary)
+                Text("ASK CLAUDE CODE").font(.system(size: 10.5, weight: .semibold)).tracking(0.6).foregroundStyle(.secondary)
                 FlowRow(spacing: 8) {
                     ForEach(prompts, id: \.self) { prompt in
                         Button { send(prompt) } label: {
@@ -61,10 +61,10 @@ struct ClaudeCard: View {
                             .environment(\.layoutDirection, .rightToLeft)
                         }
                         .buttonStyle(.plain)
-                        .help("Opens a new chat in Claude Desktop with this question; press Return there")
+                        .help("Opens a new Claude Code session in Claude Desktop with this question; press Return there")
                     }
                 }
-                Text("Opens a new chat in Claude Desktop with the question written; press Return to send.")
+                Text("Opens a new Claude Code session in Claude Desktop with the question written; press Return to send.")
                     .font(.system(size: 11.5)).foregroundStyle(.secondary)
             }
         }
@@ -102,8 +102,11 @@ struct ClaudeCard: View {
     /// A new Claude Desktop chat with the question already written (its claude:// link); the
     /// user reads it and presses Return, so nothing is sent without them.
     private func send(_ prompt: String) {
-        var parts = URLComponents(string: "claude://claude.ai/new")!
-        parts.queryItems = [URLQueryItem(name: "q", value: prompt)]
+        // A Claude Code session in Claude Desktop, working in the meetings folder; Code has the
+        // zubda connector too, and can open the meeting files themselves.
+        var parts = URLComponents(string: "claude://code/new")!
+        parts.queryItems = [URLQueryItem(name: "q", value: prompt),
+                            URLQueryItem(name: "folder", value: Recorder.meetingsFolder.path)]
         if let url = parts.url { NSWorkspace.shared.open(url) }
     }
 }
