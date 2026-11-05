@@ -42,6 +42,7 @@ Not supported yet. Say so plainly; don't try to run `setup.sh` there.
 - `insights.py` — talk shares and interruptions (stats.json), live auto-mark patterns (price/date/promise), and `rename` to put names on numbered voices. `report.py` also asks Claude for `speakers.json` (names it can infer) and `promises.json` (commitments with due dates; the app schedules reminders).
 - `clip.py` — cuts 30 s around a moment (share button ⤴ next to every timestamp in the pages). The app indexes transcripts in Spotlight (`Spotlight.swift`, with other spellings from `keywords.json`, written by report.py or backfilled by `keywords.py`) and opens a result at that moment. Saying the user's name or an `alert_words` word in a meeting opens the notch with a sound.
 - `focus.py` — builds and signs two Shortcuts (Do Not Disturb on/off) the user adds once; the app runs them while recording if enabled. Calendar events with a Meet/Zoom/Teams link get Join & Record; the notch has New Meet (meet.new); 5 min before a calendar meeting ends a ⏱ line appears. Pages have 1×/1.5×/2× and Skip silence (from transcript.json).
+- `check_claude.py` — asks the user's Claude (haiku, only the zubda connector, read-only tools) what meetings it can see; the Home page's Claude card runs it as "Test with Claude", shows Desktop/Code connection and copies ready questions for Claude Desktop.
 - `voice.py` — WhatsApp voice notes and spoken notes (`⌃⌥N`); saves to `Voice notes/` and `Notes/notes.md`.
 - `legacy/chrome-extension/` — the first version, a Chrome extension; not installed by setup.
 

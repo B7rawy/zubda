@@ -29,6 +29,33 @@ enum Transcriber {
         return await launchScript(Paths.script("insights.py"), arguments: ["rename", folder.path, json])
     }
 
+    /// Registers the connector with Claude Desktop and Claude Code.
+    static func connectClaude() async -> Bool {
+        await launchScript(Paths.script("connect_claude.py"), arguments: [])
+    }
+
+    /// Asks Claude through the connector what it can see: (worked, Claude's answer or the error).
+    static func checkClaude() async -> (Bool, String) {
+        await withCheckedContinuation { continuation in
+            let process = Process()
+            process.executableURL = python
+            process.arguments = [Paths.script("check_claude.py").path]
+            let output = Pipe()
+            process.standardOutput = output
+            process.standardError = FileHandle.nullDevice
+            process.standardInput = FileHandle.nullDevice
+            process.terminationHandler = { _ in
+                let data = output.fileHandleForReading.readDataToEndOfFile()
+                guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    return continuation.resume(returning: (false, "Couldn't reach Claude."))
+                }
+                let ok = json["ok"] as? Bool ?? false
+                continuation.resume(returning: (ok, (ok ? json["answer"] : json["error"]) as? String ?? ""))
+            }
+            do { try process.run() } catch { continuation.resume(returning: (false, "Couldn't start the check.")) }
+        }
+    }
+
     static func run(folder: URL) async -> Bool {
         await launch(script: script, folder: folder)
     }

@@ -176,6 +176,14 @@ final class ConfigStore: ObservableObject {
         return Self.claudeCodeConnected
     }
 
+    static var claudeDesktopConnected: Bool {
+        let path = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/Claude/claude_desktop_config.json")
+        guard let json = (try? JSONSerialization.jsonObject(with: Data(contentsOf: path))) as? [String: Any],
+              let servers = json["mcpServers"] as? [String: Any] else { return false }
+        return servers["zubda"] != nil || servers["meeting-recorder"] != nil
+    }
+
     /// Claude Code keeps its servers in ~/.claude.json.
     static var claudeCodeConnected: Bool {
         let path = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude.json")

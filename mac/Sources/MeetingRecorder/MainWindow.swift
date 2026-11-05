@@ -270,6 +270,8 @@ private struct HomePage: View {
             }
             .frame(height: 196)
 
+            ClaudeCard(recorder: recorder)
+
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     Text("Recent activity").font(.system(size: 15, weight: .semibold))
