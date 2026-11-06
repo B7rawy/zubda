@@ -41,10 +41,27 @@ def load():
     return settings
 
 
+# Windows pipes default to the local code page, which can't carry Arabic; every script imports
+# this module, so its JSON lines and logs come out as UTF-8 everywhere.
+for _stream in (__import__("sys").stdout, __import__("sys").stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 SETTINGS = load()
 MEETINGS = Path(SETTINGS["meetings_folder"]).expanduser()
 
 
+def data_dir():
+    """Where the Python environment and models live: ~/.local/share/meeting-recorder on every OS."""
+    return Path.home() / ".local" / "share" / "meeting-recorder"
+
+
 def claude_path():
-    candidates = [SETTINGS["claude"], shutil.which("claude"), str(Path.home() / ".local" / "bin" / "claude")]
+    # On Windows the native installer puts claude.exe in ~/.local/bin; prefer an .exe over npm's
+    # claude.cmd, which can't take a long multi-line prompt as an argument.
+    home_bin = Path.home() / ".local" / "bin"
+    candidates = [SETTINGS["claude"], str(home_bin / "claude.exe"), shutil.which("claude.exe") if os.name == "nt" else None,
+                  shutil.which("claude"), str(home_bin / "claude")]
     return next((c for c in candidates if c and Path(c).exists()), None)

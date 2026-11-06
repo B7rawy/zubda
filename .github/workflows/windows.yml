@@ -1,0 +1,59 @@
+name: Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test settings (tiny model, English clip, test folder)
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:APPDATA "meeting-recorder"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $meetings = (Join-Path $env:GITHUB_WORKSPACE "test-output\Meetings").Replace("\", "/")
+          @{ language = "en"; model = "tiny"; prompt = ""; report_language = "English"; user_name = "Tester";
+             meetings_folder = $meetings; live_mode = "word" } | ConvertTo-Json | Set-Content (Join-Path $dir "config.json") -Encoding UTF8
+
+      - name: Install with setup.ps1
+        shell: pwsh
+        run: .\setup.ps1 -NoLaunch
+
+      - name: End-to-end checks
+        shell: pwsh
+        env:
+          ZUBDA_TEST_DIR: ${{ github.workspace }}\test-output
+          PYTHONUTF8: "1"
+        run: |
+          & "$env:USERPROFILE\.local\share\meeting-recorder\venv\Scripts\python.exe" tests\windows_check.py
+
+      - name: Open every page and take screenshots
+        shell: pwsh
+        env:
+          ZUBDA_SMOKE: ${{ github.workspace }}\test-output\screens
+          QT_QPA_PLATFORM: windows
+        run: |
+          $py = "$env:USERPROFILE\.local\share\meeting-recorder\venv\Scripts\python.exe"
+          $p = Start-Process $py -ArgumentList "windows\Zubda.pyw" -PassThru -NoNewWindow
+          if (-not $p.WaitForExit(180000)) { $p.Kill(); throw "The app did not finish its screenshot run." }
+          Get-ChildItem test-output\screens
+          if (-not (Test-Path test-output\screens\smoke.txt)) { throw "No screenshots were saved." }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-test-output
+          path: |
+            test-output/screens
+            test-output/Meetings/*/transcript.md

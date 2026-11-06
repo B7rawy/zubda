@@ -100,7 +100,10 @@ def main():
         cwd=folder, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
     )
     # The app cancels a queued meeting by terminating this script; take Claude down with it.
-    signal.signal(signal.SIGTERM, lambda *_: (child.terminate(), sys.exit(1)))
+    try:
+        signal.signal(signal.SIGTERM, lambda *_: (child.terminate(), sys.exit(1)))
+    except (ValueError, OSError):  # not available in every context on Windows
+        pass
     child.wait()
     if child.returncode != 0 or not (folder / "report.md").exists():
         sys.exit(f"Report failed, see {folder}/report.log")

@@ -130,7 +130,7 @@ def mixed_audio(folder):
     target = folder / "audio.m4a"
     if target.exists():
         return target
-    sources = [folder / f"{t}{ext}" for t in TRACKS for ext in (".caf", ".webm") if (folder / f"{t}{ext}").exists()]
+    sources = [folder / f"{t}{ext}" for t in TRACKS for ext in (".caf", ".webm", ".flac", ".wav") if (folder / f"{t}{ext}").exists()]
     if not sources:
         return None
     import subprocess

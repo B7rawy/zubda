@@ -139,12 +139,12 @@ def meeting_prompt():
 
 def whisper_words(clip, offset):
     """Words with absolute times for one pass, dropping what Whisper hears in silence."""
-    import mlx_whisper
+    import whisper_engine
 
-    result = mlx_whisper.transcribe(
-        clip, path_or_hf_repo=transcribe.DEFAULT_MODEL,
+    result = whisper_engine.transcribe(
+        clip, transcribe.DEFAULT_MODEL,
         language=None if transcribe.SETTINGS["language"] == "auto" else transcribe.SETTINGS["language"],
-        condition_on_previous_text=False, initial_prompt=meeting_prompt(), word_timestamps=True,
+        prompt=meeting_prompt(), word_timestamps=True,
     )
     words = []
     for seg in result["segments"]:
@@ -337,7 +337,7 @@ def main():
     by_name = {}
     for track in tracks:
         # The app has closed the audio file by now, so voices are told apart over the whole meeting.
-        audio = next((folder / f"{track.name}{ext}" for ext in (".caf", ".webm") if (folder / f"{track.name}{ext}").exists()), None)
+        audio = next((folder / f"{track.name}{ext}" for ext in (".caf", ".webm", ".flac", ".wav") if (folder / f"{track.name}{ext}").exists()), None)
         by_name[track.name] = transcribe.separate_voices(track.segments, audio, track.name) if audio else track.segments
     others = by_name.get("others", [])
     mine = transcribe.drop_echo(by_name.get("me", []), others)

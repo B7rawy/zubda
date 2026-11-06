@@ -65,8 +65,8 @@ def find_meeting(target):
 
 
 def load_audio(path):
-    # Decoded here because mlx_whisper calls whatever ffmpeg is on PATH, and the one on this Mac
-    # is an Intel build that won't run. imageio_ffmpeg ships a native binary.
+    # Decoded here with the ffmpeg that imageio_ffmpeg ships, on every platform: a system ffmpeg
+    # may be missing (Windows) or the wrong architecture (old Homebrew on a Mac).
     import imageio_ffmpeg
     import numpy as np
 
@@ -92,14 +92,13 @@ def transcribe_track(path, track, model, prompt=None):
 
 def transcribe_audio(audio, track, model=DEFAULT_MODEL, prompt=None):
     """Segments for 16 kHz mono float audio, with times relative to its start."""
-    import mlx_whisper
+    import whisper_engine
 
-    result = mlx_whisper.transcribe(
+    result = whisper_engine.transcribe(
         audio,
-        path_or_hf_repo=model,
+        model,
         language=None if SETTINGS["language"] == "auto" else SETTINGS["language"],
-        condition_on_previous_text=False,
-        initial_prompt=prompt or PROMPT,
+        prompt=prompt or PROMPT,
         # Without this a line after silence is stamped too early and the two tracks merge out of order.
         word_timestamps=True,
     )

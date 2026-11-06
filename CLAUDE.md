@@ -25,14 +25,34 @@ steps only they can do.
 - Optional: add their Google account in System Settings → Internet Accounts so calendar
   meetings show up.
 
-## Windows
+## Install (Windows 10/11, beta)
 
-Not supported yet. Say so plainly; don't try to run `setup.sh` there.
+1. Python 3.11 or 3.12 must exist (`py -3.12 --version`). If not, ask the user, then
+   `winget install -e --id Python.Python.3.12`.
+2. From the repo folder: `powershell -ExecutionPolicy Bypass -File .\setup.ps1`. It creates the venv in
+   `%USERPROFILE%\.local\share\meeting-recorder\venv` (about 600 MB of libraries: PySide6, faster-whisper,
+   PyAudioWPatch…), the settings in `%APPDATA%\meeting-recorder\config.json`, connects Claude, installs the
+   skill, adds "Zubda" to the Start menu and opens it. `-DownloadModel` fetches the Whisper model now
+   (about 1.6 GB); ask first.
+3. Same step 3 and 4 as the Mac (name, languages, `claude` logged in). The user's name and languages can
+   also be set in Zubda > Settings.
+4. Prefer Claude Code's native installer on Windows (`claude.exe`); `config.py` uses it over npm's
+   `claude.cmd`, which can't take the report prompt as an argument.
+
+The Windows app is Python (`windows/zubda/`, PySide6): a bar at the top centre of the screen that acts
+like the Mac notch, a main window (Home with the Claude card, Meetings with report/transcript pages,
+Settings, About) and a tray icon. Audio: WASAPI loopback (everything the PC plays) + the mic, via
+PyAudioWPatch, written as `others.wav`/`me.wav` or `room.wav`. Call detection reads Windows' own
+microphone-in-use records. Not on Windows yet: Spotlight-style search, Do Not Disturb, calendar,
+WhatsApp voice notes. `tests/windows_check.py` + `.github/workflows/windows.yml` test it on a GitHub
+Windows machine on every push.
 
 ## Layout
 
 - `mac/` — the Swift notch app (records, asks before/after calls, queue, archive, questions).
-- `transcribe.py` — local Whisper (MLX); `report.py` — report via `claude -p`; `render.py` —
+- `whisper_engine.py` — one Whisper call for both systems: mlx-whisper on Apple silicon, faster-whisper
+  (CUDA if present, else CPU int8) everywhere else.
+- `transcribe.py` — local Whisper; `report.py` — report via `claude -p`; `render.py` —
   Markdown to RTL HTML; `archive.py` — searchable index of all meetings; `config.py` — settings.
 - `skill/SKILL.md` — template for the `meeting` skill; `setup.sh` fills in the paths.
 - `mcp_server.py` — MCP connector (stdlib only) giving Claude list/get/search/live/open-items tools;

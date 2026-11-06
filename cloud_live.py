@@ -15,7 +15,10 @@ from pathlib import Path
 
 URL = "wss://stt-rt.soniox.com/transcribe-websocket"
 MODEL = "stt-rt-v6"
-KEY_FILE = Path.home() / ".config/meeting-recorder/soniox.key"
+from config import config_path
+
+# Next to config.json: ~/.config/meeting-recorder on a Mac, %APPDATA%\meeting-recorder on Windows.
+KEY_FILE = config_path().parent / "soniox.key"
 SENTENCE_END = (".", "?", "!", "؟")
 
 

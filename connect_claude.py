@@ -74,7 +74,7 @@ def build_extension():
         "name": "zubda",
         "display_name": "Zubda",
         "version": "1.0.0",
-        "description": "Your recorded meetings (Zubda, the Mac notch app): list, read, search, follow live, open items.",
+        "description": "Your recorded meetings (Zubda): list, read, search, follow live, open items.",
         "author": {"name": "Kareem Elbhrawy", "url": "https://github.com/B7rawy/zubda"},
         "homepage": "https://github.com/B7rawy/zubda",
         "icon": "icon.png",
@@ -95,7 +95,10 @@ def build_extension():
     launcher = f"import os, sys\nos.execv({sys.executable!r}, [{sys.executable!r}, {SERVER!r}, *sys.argv[1:]])\n"
     icon = None
     icns = repo / "mac" / "Resources" / "AppIcon.icns"
-    if icns.exists():
+    png = repo / "windows" / "zubda" / "assets" / "icon.png"
+    if png.exists():
+        icon = png
+    elif icns.exists() and sys.platform == "darwin":
         icon = out.parent / "icon.png"
         subprocess.run(["sips", "-s", "format", "png", "-Z", "256", str(icns), "--out", str(icon)], capture_output=True)
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
@@ -112,12 +115,17 @@ def desktop_extension_installed():
 
 
 def install_extension():
-    if sys.platform != "darwin" or not desktop_config().parent.exists():
+    if not desktop_config().parent.exists():
         return "Claude Desktop isn't installed; skipped the extension."
     if desktop_extension_installed():
         return "Claude Desktop extension: already installed."
     bundle = build_extension()
-    subprocess.run(["open", "-a", "Claude", str(bundle)])
+    if sys.platform == "darwin":
+        subprocess.run(["open", "-a", "Claude", str(bundle)])
+    elif os.name == "nt":
+        os.startfile(str(bundle))  # Claude Desktop handles .mcpb files
+    else:
+        return f"Open {bundle} with Claude Desktop to install it."
     return "Claude Desktop extension: click Install in Claude Desktop."
 
 
