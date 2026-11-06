@@ -1,109 +1,109 @@
 # Zubda · زُبدة
 
-**ميتنج ساعة ونص؟ هاتلي الزبدة.**
+**A 90-minute meeting? Just give me the gist.**
 
-برنامج مجاني ومفتوح المصدر بيعيش في النوتش بتاع الماك. بيسجّل ميتنجاتك الأونلاين واللي في نفس الأوضة، ويكتب كل كلمة اتقالت، ويطلعلك تقرير فيه القرارات والمهام والوعود والنقط المفتوحة. وClaude بتاعك بيفهم ميتنجاتك كلها ويرد عليك فيها.
+Zubda is a free, open-source meeting recorder that lives in your Mac's notch. It records your meetings, online or in the room, writes down every word on your own computer, and gives you a report with the decisions, tasks, promises and open points. Your own Claude can read all your meetings and answer questions about them.
 
-> *Zubda is a free, open-source Mac notch app that records your meetings (online or in the room), transcribes every word on your Mac, and writes the report with your own Claude. Built for Arabic dialects (Egyptian, Gulf…) and English.*
+Built for Arabic dialects (Egyptian, Gulf…) and English. *Zubda* is Arabic for "the gist" (literally, "the cream").
 
 ---
 
-## بيعمل إيه
+## What it does
 
-### التسجيل
-- **من النوتش:** قرّب الماوس من النوتش يفتح. زرار للميتنج الأونلاين (زوم، ميت، تيمز، واتساب)، وزرار للميتنج اللي في نفس الأوضة.
-- **New Meet:** زرار بيفتح ميتنج جوجل جديد ويبدأ يسجّل على طول.
-- **Join & Record:** لو الميتنج في الكالندر فيه لينك، النوتش يسألك قبلها، وزرار واحد يدخّلك ويسجّل.
-- **بيعرف الميتنج لوحده:** أول ما برنامج مكالمات يفتح المايك يسألك تسجّل. ولما المكالمة تقفل يسألك، ولو ما ردّيتش يحفظ لوحده.
-- **Do Not Disturb:** الإشعارات تتقفل وإنت بتسجّل، وترجع لما تخلص. محتاجة مرة واحدة تضيف اختصارين من الإعدادات.
-- **فاضل ٥ دقايق:** قبل ما ميعاد الميتنج في الكالندر يخلص، النوتش يقولك بهدوء.
+### Recording
+- **From the notch:** move the mouse to the notch and it opens. One button for online meetings (Zoom, Meet, Teams, WhatsApp) and one for meetings in the room.
+- **New Meet:** opens a new Google Meet and starts recording right away.
+- **Join & Record:** if a calendar meeting has a link, the notch asks you before it starts, and one button joins and records.
+- **Knows when a call starts:** as soon as a calling app turns on the mic, it asks whether to record. When the call ends it asks again, and saves on its own if you don't answer.
+- **Do Not Disturb:** notifications go quiet while you record and come back when you finish. Needs two shortcuts added once from Settings.
+- **5 minutes left:** before a calendar meeting's end time, the notch tells you quietly.
 
-### وإنت في الميتنج
-- **الكلام بيتكتب قدامك كلمة بكلمة** في النوتش، وتحته وهو مقفول زي الترجمة اللي في الأفلام.
-- **مين بيتكلم:** «متحدث ١، متحدث ٢» في الميتنج اللي في نفس الأوضة، و«ضيف ١، ضيف ٢» في الأونلاين.
-- **ترجمة لحظية** لعربي أو إنجليزي.
-- **حد قال اسمك؟** النوتش بيفتح ويرن، وبيوريك الجملة وإيه اللي اتقال قبلها، عشان ترد على طول. وتقدر تزوّد كلمات تانية.
-- **علامات أوتوماتيك ★:** أي سعر أو موعد أو وعد («هبعتلك بكرة») بيتعلّم لوحده. وتقدر تعلّم بنفسك بـ `⌃⌥M`.
-- **«لخصلي اللي فات»:** لو سرحت، زرار بيلخّصلك آخر ٥ دقايق.
+### During the meeting
+- **Live captions, word by word** in the notch, and under it like movie subtitles when it's closed.
+- **Who's speaking:** "Speaker 1, Speaker 2" in the room, "Guest 1, Guest 2" online.
+- **Live translation** to Arabic or English.
+- **Someone said your name?** The notch opens with a sound and shows the sentence and what came before it, so you can answer right away. You can add other words too.
+- **Automatic marks ★:** any price, date or promise ("I'll send it tomorrow") is marked on its own. Mark a moment yourself with `⌃⌥M`.
+- **"What did I miss?":** drifted off? One button summarises the last 5 minutes.
 
-### بعد الميتنج
-- **تقرير كامل:** ملخص، والسياق من الأول للآخر، والقرارات، والمهام، والنقط المفتوحة، ومقارنة بآخر ميتنج مع نفس العميل.
-- **أسماء حقيقية:** Claude بيعرف مين «متحدث ١» من الكلام، أو تكتبها إنت بزرار Name speakers.
-- **مين اتكلم أد إيه:** النسب، ومين قاطع مين.
-- **الوعود:** قايمة مين وعد بإيه وإمتى، وتنبيه على الماك قبل الميعاد.
-- **اسمع اللحظة:** دوس على أي توقيت تسمعه. وفيه سرعة 1.5× و2×، وتخطي السكوت.
-- **ابعت اللحظة دي:** زرار ⤴ جنب أي جملة بيقص ٣٠ ثانية من الصوت مع الكلام، وتبعتها واتساب أو AirDrop.
-- **Spotlight:** `⌘ Space` واكتب أي كلمة اتقالت في أي ميتنج، بالعربي أو بالإنجليزي، يفتحلك اللحظة دي.
+### After the meeting
+- **Full report:** summary, the story from start to end, decisions, tasks, open points, and a comparison with your last meeting with the same client.
+- **Real names:** Claude works out who "Speaker 1" is from the conversation, or you type names with the Name speakers button.
+- **Who talked how much:** talk shares, and who interrupted whom.
+- **Promises:** who promised what and by when, with a Mac reminder before the due date.
+- **Replay any moment:** click any timestamp to hear it. 1.5× and 2× speed, and skip silence.
+- **Share a moment:** the ⤴ button next to any line cuts 30 seconds of audio with the text, ready for WhatsApp or AirDrop.
+- **Spotlight:** `⌘ Space`, type any word said in any meeting, in Arabic or English, and it opens that moment.
 
 ### Claude
-- **Claude Desktop وClaude Code بيشوفوا ميتنجاتك على طول**، حتى الميتنج اللي شغال دلوقتي. اسأله «العميل قال إيه عن الدفع؟» من غير ما ترفع ملف.
-- **اسأل من النوتش** وخد الرد بالتوقيت.
-- **كارت Claude في الصفحة الرئيسية:** يوريك Claude Desktop وClaude Code متوصّلين ولا لأ، وزرار يفتح Claude Desktop ويسأله يشوف إيه من ميتنجاتك، وأسئلة جاهزة تتكتب في Claude Desktop بدوسة.
+- **Claude Desktop and Claude Code can see your meetings**, including the one happening now. Ask "what did the client say about payment?" without uploading a file.
+- **Ask from the notch** and get the answer with timestamps.
+- **Claude card on the Home page:** shows whether Claude Desktop and Claude Code are connected, a button that opens Claude Desktop on your meetings, and ready-made questions you can send with one click.
 
-### كمان
-- **فويسات واتساب:** النوتش يعرض يفرّغ الفويس ويلخّصه.
-- **ملاحظة بصوتك:** `⌃⌥N` تتكلم، والنوتش يكتبها ويحفظها.
-- **ملخص الصبح** بميتنجات اليوم، و**عدّاد** للميتنج الجاي.
+### Also
+- **WhatsApp voice notes:** the notch offers to transcribe and summarise them.
+- **Spoken notes:** press `⌃⌥N` and talk; the notch writes it down and saves it.
+- **Morning brief** of today's meetings, and a **countdown** to the next one.
 
 ---
 
-## مجاني ولا فلوس؟
+## Free or paid?
 
-| | مجاني على جهازك | أسرع بـ Soniox (اختياري) |
+| | Free, on your computer | Faster with Soniox (optional) |
 |---|---|---|
-| التفريغ وقت الميتنج | Whisper على شريحة الماك | Soniox، أقل من ثانية |
-| مين بيتكلم وقت الميتنج | لأ | آه |
-| الترجمة | من أبل، على الجهاز | Soniox |
-| التكلفة | ببلاش | حوالي ٠.١٢ دولار في الساعة من حسابك إنت |
-| الصوت بيطلع من الماك؟ | لأ | آه، لـ Soniox بس وقت التسجيل |
+| Live transcription | Whisper on the Mac's chip | Soniox, under a second |
+| Live speaker labels | No | Yes |
+| Translation | Apple, on device | Soniox |
+| Cost | Free | About $0.12 an hour, on your own account |
+| Does audio leave the Mac? | No | Yes, to Soniox only, while recording |
 
-بتختار من **Settings ← Recording**، وتحط مفتاح Soniox بتاعك هناك. ولو المفتاح وقف أو النت قطع، البرنامج بيرجع للتفريغ على الجهاز لوحده.
+Choose in **Settings → Recording** and paste your Soniox key there. If the key stops working or the internet drops, Zubda falls back to on-device transcription by itself.
 
-التقارير بيكتبها **Claude بحسابك إنت**، من غير أي سيرفر بتاعنا.
+Reports are written by **Claude on your own account**. There is no server of ours in between.
 
 ---
 
-## محتاج إيه
+## Requirements
 
-- **ماك** بشريحة أبل (M1 أو أحدث)، أو **ويندوز 10/11** (نسخة تجريبية Beta).
-- [Claude Code](https://claude.com/claude-code): هو اللي بيسطّب البرنامج، وبيكتب التقارير ويرد على الأسئلة.
+- A **Mac** with Apple silicon (M1 or later), or **Windows 10/11** (beta).
+- [Claude Code](https://claude.com/claude-code): it installs Zubda, writes the reports and answers your questions.
 
-## التسطيب
+## Install
 
-ادّي رابط الريبو ده لـ Claude Code وقوله:
+Give this repo's link to Claude Code and say:
 
-> سطّبلي البرنامج ده
+> Install this for me
 
-هيعمل كل حاجة، وهيسألك على اسمك ولغة ميتنجاتك. عليك إنت حاجتين بس:
-1. توافق على أذونات الماك لما تظهر: المايك، وتسجيل الشاشة والصوت (للأونلاين)، والكالندر، والإشعارات.
-2. لو `claude` مش متسجّل دخول: افتح التيرمنال واكتب `claude` وبعدين `/login`.
+It does everything and asks for your name and the language of your meetings. You only need to:
+1. Allow the Mac permissions when they appear: Microphone, Screen & System Audio Recording (for online meetings), Calendars and Notifications.
+2. If `claude` isn't logged in: open Terminal, type `claude`, then `/login`.
 
-ولو عاوز تسطّبه بنفسك:
+Or install it yourself:
 
 ```bash
 ./setup.sh
 ```
 
-**على ويندوز:** من فولدر الريبو في PowerShell:
+**On Windows**, from the repo folder in PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-نسخة ويندوز فيها شريط أسود فوق نص الشاشة بيشتغل زي النوتش، وشباك رئيسي، وأيقونة جنب الساعة. بتسجّل صوت الكمبيوتر كله والمايك، فبتشتغل مع زوم وتيمز وميت وواتساب. لسه ناقصها: البحث من قايمة ويندوز، وDo Not Disturb، والكالندر، وفويسات واتساب.
+The Windows version has a black bar at the top centre of the screen that works like the notch, a main window, and a tray icon. It records everything the PC plays plus the mic, so it works with Zoom, Teams, Meet and WhatsApp. Not there yet: search from the Start menu, Do Not Disturb, calendar, and WhatsApp voice notes.
 
-نموذج التفريغ (حوالي ١.٦ جيجا) بيتنزّل مع أول ميتنج. ولو عاوز تنزّله من الأول: `./setup.sh --download-model`
+The transcription model (about 1.6 GB) downloads with your first meeting. To get it now: `./setup.sh --download-model`
 
-## الخصوصية
+## Privacy
 
-- التسجيلات والنصوص على جهازك بس، في `Downloads/Meetings`.
-- مفيش سيرفر ولا حساب ولا اشتراك.
-- **قول للناس قبل ما تسجّل.** في بلاد كتير التسجيل من غير موافقة ممنوع قانونيًا.
+- Recordings and transcripts stay on your computer, in `Downloads/Meetings`.
+- No server, no account, no subscription.
+- **Tell people before you record.** In many countries recording without consent is against the law.
 
-## اللي عمله
+## Made by
 
-[Kareem Elbhrawy](https://kareemelbhrawy.com): عملته لميتنجاتي مع العملاء باللهجة المصري والخليجي، وبعدين خليته ببلاش لكل الناس.
+[Kareem Elbhrawy](https://kareemelbhrawy.com). I built it for my client meetings in Egyptian and Gulf Arabic, then made it free for everyone.
 
-## الترخيص
+## License
 
-MIT: استخدمه وعدّل عليه وشاركه ببلاش.
+MIT: use it, change it and share it for free.
