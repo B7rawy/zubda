@@ -1183,40 +1183,83 @@ private struct Teleprompter: View {
         }
     }
 
+    /// Two fixed rows, like film subtitles: the line before (dim) and what is being said now
+    /// (bright). Each row is one line that keeps the newest words when it's too long, and lines
+    /// up on the right for Arabic, so nothing overlaps or jumps around.
     private var captions: some View {
-        VStack(alignment: .trailing, spacing: 3) {
-            ForEach(entries.suffix(draft == nil ? 3 : 2)) { entry in
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    TypedText(text: entry.translation ?? entry.text, animate: Date().timeIntervalSince(entry.shownAt) < 1.5,
-                              size: 12.5, lines: 1)
-                        .shadow(color: .black.opacity(0.6), radius: 3)
-                    Circle().fill(Voice.tint(entry.track, entry.speaker)).frame(width: 5, height: 5)
-                }
-                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
-            }
-            if let draft {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    (Text(draft.fixed).foregroundColor(.white.opacity(0.88))
-                     + Text(draft.fixed.isEmpty ? "" : " ")
-                     + Text(draft.tentative).foregroundColor(.white.opacity(0.45)))
-                        .font(.system(size: 12.5, weight: .medium))
-                        .lineLimit(1)
-                        .truncationMode(.head)
-                        .shadow(color: .black.opacity(0.6), radius: 3)
-                    Circle().fill(Voice.tint(draft.track, draft.speaker)).frame(width: 5, height: 5)
-                }
-                .transition(.opacity)
-            }
+        let now = current
+        let before = previous(excluding: now)
+        return VStack(spacing: 5) {
+            CaptionRow(text: before?.text ?? "", tentative: "", tint: before.map { Voice.tint($0.track, $0.speaker) },
+                       size: 11.5, opacity: 0.5)
+            CaptionRow(text: now?.text ?? "", tentative: now?.tentative ?? "", tint: now.map { Voice.tint($0.track, $0.speaker) },
+                       size: 13, opacity: 0.95)
         }
+        .padding(.horizontal, 22)
+        .padding(.bottom, 9)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .padding(.bottom, 8)
-        .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black.opacity(0.5), location: 0.3),
-                                     .init(color: .black, location: 0.62)],
-                             startPoint: .top, endPoint: .bottom))
-        .animation(.spring(response: 0.45, dampingFraction: 0.85), value: entries)
         .clipped()
     }
 
+    private struct Line {
+        let id: String
+        let text: String
+        var tentative = ""
+        let track: String
+        let speaker: String?
+    }
+
+    /// What is being said right now: the draft, or else the newest finished line.
+    private var current: Line? {
+        if let draft {
+            return Line(id: "draft", text: draft.fixed, tentative: draft.tentative, track: draft.track, speaker: draft.speaker)
+        }
+        guard let last = spoken.last else { return nil }
+        return Line(id: last.id.uuidString, text: last.translation ?? last.text, track: last.track, speaker: last.speaker)
+    }
+
+    private func previous(excluding now: Line?) -> Line? {
+        let list = spoken
+        let index = draft == nil ? list.count - 2 : list.count - 1
+        guard index >= 0 else { return nil }
+        let entry = list[index]
+        return Line(id: entry.id.uuidString, text: entry.translation ?? entry.text, track: entry.track, speaker: entry.speaker)
+    }
+
+    /// Lines people said (marks and time notices stay in the open notch's feed).
+    private var spoken: [Recorder.LiveEntry] {
+        entries.filter { $0.track != "mark" && $0.track != "notice" }
+    }
+}
+
+/// One subtitle row: a coloured dot for who is talking, then the words on one line.
+private struct CaptionRow: View {
+    let text: String
+    let tentative: String
+    let tint: Color?
+    let size: CGFloat
+    let opacity: Double
+
+    private var arabic: Bool {
+        (text + tentative).unicodeScalars.contains { (0x0600...0x06FF).contains($0.value) }
+    }
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Circle().fill(tint ?? .clear).frame(width: 5, height: 5)
+            (Text(text).foregroundColor(.white.opacity(opacity))
+             + Text(text.isEmpty || tentative.isEmpty ? "" : " ")
+             + Text(tentative).foregroundColor(.white.opacity(opacity * 0.5)))
+                .font(.system(size: size, weight: size > 12 ? .semibold : .regular))
+                .lineLimit(1)
+                .truncationMode(.head)
+                .shadow(color: .black.opacity(0.7), radius: 3)
+            Spacer(minLength: 0)
+        }
+        .frame(height: size + 6)
+        .environment(\.layoutDirection, arabic ? .rightToLeft : .leftToRight)
+        .animation(.easeOut(duration: 0.15), value: text + tentative)
+    }
 }
 
 /// A soft glow drifting behind the captions. Three blurred blobs move on slow, different paths
