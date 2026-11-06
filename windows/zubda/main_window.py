@@ -14,7 +14,7 @@ from PySide6.QtCore import QSize, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QIcon, QPixmap
 from PySide6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout,
                                QInputDialog, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
-                               QPushButton, QScrollArea, QStackedWidget, QVBoxLayout, QWidget)
+                               QPushButton, QScrollArea, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget)
 
 from . import audio, library, paths, theme
 
@@ -46,6 +46,7 @@ def scroll(widget):
     area = QScrollArea()
     area.setWidgetResizable(True)
     area.setFrameShape(QFrame.NoFrame)
+    area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # pages fit the window's width
     area.setWidget(widget)
     return area
 
@@ -146,6 +147,7 @@ class HomePage(QWidget):
             stats.addWidget(box, i // 2, i % 2)
         holder = QWidget()
         holder.setLayout(stats)
+        holder.setMinimumWidth(0)
         top.addWidget(holder, 2)
         self.layout_.addLayout(top)
 
@@ -181,24 +183,29 @@ class HomePage(QWidget):
         titles = QVBoxLayout()
         titles.addWidget(label("Claude", 15, bold=True))
         titles.addWidget(label("Claude reads your meetings, even one that's still going.", 12, theme.MUTED))
-        head.addLayout(titles)
-        head.addStretch()
-        desktop, code = claude_status()
-        for name, on in (("Claude Desktop", desktop), ("Claude Code", code)):
-            pill = label(f"● {name}", 12, theme.GREEN if on else theme.ORANGE)
-            pill.setToolTip(f"{name} can read your meetings" if on else f"{name} isn't connected yet")
-            head.addWidget(pill)
-        if not (desktop and code):
-            connect = QPushButton("Connect")
-            connect.clicked.connect(self._connect)
-            head.addWidget(connect)
+        head.addLayout(titles, 1)
         test = QPushButton("Test in Claude Desktop")
         test.setToolTip("Opens a Claude Code session with a question about your meetings; press Enter there")
         test.clicked.connect(lambda: open_in_claude(TEST_PROMPT))
         head.addWidget(test)
         v.addLayout(head)
+        # Connection on its own line, so the card never pushes the page wider than the window.
+        status = QHBoxLayout()
+        desktop, code = claude_status()
+        for name, on in (("Claude Desktop", desktop), ("Claude Code", code)):
+            pill = label(f"● {name}  {'connected' if on else 'not connected'}", 12, theme.GREEN if on else theme.ORANGE)
+            pill.setToolTip(f"{name} can read your meetings" if on else f"{name} isn't connected yet")
+            status.addWidget(pill)
+            status.addSpacing(14)
+        if not (desktop and code):
+            connect = QPushButton("Connect")
+            connect.clicked.connect(self._connect)
+            status.addWidget(connect)
+        status.addStretch()
+        v.addLayout(status)
         v.addWidget(label("ASK CLAUDE CODE", 11, theme.MUTED, bold=True))
         chips = QHBoxLayout()
+        chips.setSpacing(8)
         prompts = list(PROMPTS)
         if self.recorder.phase == "recording":
             prompts.insert(0, "تابع الميتنج اللي شغال دلوقتي وقولّي أهم حاجة اتقالت")
@@ -206,6 +213,7 @@ class HomePage(QWidget):
             chip = QPushButton("↗ " + prompt)
             chip.setObjectName("chip")
             chip.setLayoutDirection(Qt.RightToLeft)
+            chip.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
             chip.clicked.connect(lambda _=False, p=prompt: open_in_claude(p + VISUAL_HINT))
             chips.addWidget(chip)
         chips.addStretch()
@@ -363,6 +371,7 @@ class SettingsPage(QWidget):
 
         def row(name, widget, hint=None):
             line = QHBoxLayout()
+            line.setSpacing(12)
             name_label = label(name, 13)
             name_label.setFixedWidth(220)
             line.addWidget(name_label)
@@ -370,7 +379,7 @@ class SettingsPage(QWidget):
             v.addLayout(line)
             if hint:
                 h = label(hint, 11.5, theme.MUTED, wrap=True)
-                h.setContentsMargins(224, 0, 0, 0)
+                h.setContentsMargins(220 + 12 + 1, 0, 0, 0)
                 v.addWidget(h)
 
         section("You")
