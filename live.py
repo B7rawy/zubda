@@ -300,7 +300,7 @@ def run_cloud(folder, names):
             mine = transcribe.drop_echo([s for s in segments if s["track"] == "me"],
                                         [s for s in segments if s["track"] == "others"])
             rest = [s for s in segments if s["track"] != "me"]
-            transcribe.write_outputs(folder, meta, sorted(mine + rest, key=lambda s: s["start"]))
+            transcribe.write_outputs(folder, meta, insights.smooth_speakers(sorted(mine + rest, key=lambda s: s["start"])))
         except Exception as error:  # the queue will transcribe it locally instead
             print(json.dumps({"error": f"Saving the Soniox transcript: {error}"}), flush=True)
     return True

@@ -20,6 +20,11 @@ from config import config_path
 # Next to config.json: ~/.config/meeting-recorder on a Mac, %APPDATA%\meeting-recorder on Windows.
 KEY_FILE = config_path().parent / "soniox.key"
 SENTENCE_END = (".", "?", "!", "؟")
+# Live voice separation guesses from very little sound, so a short word can land on the wrong
+# person. A new speaker only takes over once they have said this much; anything shorter is
+# counted as the person already talking.
+SWITCH_CHARS = 14
+SWITCH_MS = 1400
 
 
 def api_key():
@@ -45,6 +50,8 @@ class Stream:
         self.finals = []  # final tokens of the line being said: (text, start_ms)
         self.translation = []
         self.speaker = None
+        self.switch = []          # final tokens from a different voice, not yet trusted: (text, start_ms, end_ms)
+        self.switch_speaker = None
         self.closing = False  # the sentence ended; close once its translation is in
         self.end_ms = 0
         self.failed = False
@@ -66,6 +73,26 @@ class Stream:
         except Exception:
             pass
         self.thread.join(timeout=15)
+
+    def _settle_switch(self, keep_as_new):
+        """Decide what a run of tokens from another voice was: a real turn, or a mislabel."""
+        if not self.switch:
+            return
+        tokens = [(t, start) for t, start, _ in self.switch]
+        if keep_as_new:
+            self.close_line()
+            self.speaker = self.switch_speaker
+            self.finals = tokens
+        else:
+            self.finals.extend(tokens)
+        self.switch, self.switch_speaker = [], None
+
+    def _switch_is_real(self):
+        if not self.switch:
+            return False
+        chars = len("".join(t for t, _, _ in self.switch).strip())
+        duration = self.switch[-1][2] - self.switch[0][1]
+        return chars >= SWITCH_CHARS or duration >= SWITCH_MS
 
     def close_line(self):
         text = "".join(t for t, _ in self.finals).strip()
@@ -94,6 +121,8 @@ class Stream:
                         continue
                     if text == "<end>":
                         if final:
+                            # A pause: a short run from "another voice" was the same person.
+                            self._settle_switch(keep_as_new=self._switch_is_real() or not self.finals)
                             self.close_line()
                         continue
                     speaker = token.get("speaker")
@@ -101,16 +130,26 @@ class Stream:
                         pending.append(text)
                         pending_speaker = pending_speaker or speaker
                         continue
-                    changed = speaker is not None and self.speaker is not None and speaker != self.speaker
-                    if self.finals and (self.closing or changed):
+                    start, end = token.get("start_ms", 0), token.get("end_ms", 0)
+                    self.end_ms = end or self.end_ms
+                    if self.speaker is None or speaker is None:
+                        self.speaker = self.speaker or speaker
+                    elif speaker != self.speaker:
+                        if self.switch_speaker not in (None, speaker):
+                            self._settle_switch(keep_as_new=False)  # a third voice in a blink: noise
+                        self.switch_speaker = speaker
+                        self.switch.append((text, start, end))
+                        if self._switch_is_real():
+                            self._settle_switch(keep_as_new=True)
+                        continue
+                    elif self.switch:
+                        self._settle_switch(keep_as_new=False)  # back to the same voice: it was a flicker
+                    if self.finals and self.closing:
                         self.close_line()
-                    if speaker is not None:
-                        self.speaker = speaker
-                    self.finals.append((text, token.get("start_ms", 0)))
-                    self.end_ms = token.get("end_ms", self.end_ms)
+                    self.finals.append((text, start))
                     if text.strip().endswith(SENTENCE_END) and len(self.finals) > 3:
                         self.closing = True
-                fixed = "".join(t for t, _ in self.finals).strip()
+                fixed = "".join(t for t, _ in self.finals + [(t, s) for t, s, _ in self.switch]).strip()
                 self.out.draft(self.name, fixed, "".join(pending).strip(),
                                self.speaker if fixed else pending_speaker or self.speaker)
                 if data.get("finished"):
@@ -118,6 +157,7 @@ class Stream:
         except Exception as error:
             self.out.error(f"Soniox: {error}")
             self.failed = True
+        self._settle_switch(keep_as_new=self._switch_is_real() or not self.finals)
         self.close_line()
         self.out.draft(self.name, "", "", None)
 

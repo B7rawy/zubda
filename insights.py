@@ -47,6 +47,50 @@ def write_stats(folder):
     return stats
 
 
+def smooth_speakers(segments):
+    """Fix the usual mistake of live voice separation before the transcript is saved: a "voice"
+    that only ever said a few words (one person split in two) is merged into the nearest real
+    speaker. Short replies between two people («آه»، «بالظبط») are real turns and stay as they are;
+    flickers inside one person's talk are already handled live (cloud_live SWITCH_*).
+    Only numbered voices on shared tracks are touched ("متحدث 2", "ضيف 1"); «أنا» never changes."""
+    numbered = re.compile(r"(متحدث|ضيف) \d+")
+    by_track = {}
+    for seg in segments:
+        if numbered.fullmatch(seg.get("speaker", "")):
+            by_track.setdefault(seg["track"], []).append(seg)
+
+    def words(seg):
+        return len(seg["text"].split())
+
+    for lines in by_track.values():
+        lines.sort(key=lambda s: s["start"])
+        total = sum(words(s) for s in lines) or 1
+        counts = {}
+        for seg in lines:
+            counts.setdefault(seg["speaker"], []).append(seg)
+        real = [name for name, segs in counts.items() if sum(words(s) for s in segs) / total >= 0.04 or len(segs) > 3]
+        if not real:
+            continue
+        for name, segs in counts.items():
+            if name in real:
+                continue
+            for seg in segs:
+                nearest = min((s for s in lines if s["speaker"] in real),
+                              key=lambda s: abs(s["start"] - seg["start"]), default=None)
+                if nearest:
+                    seg["speaker"] = nearest["speaker"]
+        # Renumber in order of first appearance, so the voices read 1, 2, 3 with no gaps.
+        order = []
+        for seg in lines:
+            if seg["speaker"] not in order:
+                order.append(seg["speaker"])
+        prefix = lambda name: name.split(" ")[0]
+        mapping = {name: f"{prefix(name)} {i + 1}" for i, name in enumerate(order)}
+        for seg in lines:
+            seg["speaker"] = mapping[seg["speaker"]]
+    return segments
+
+
 # Live automatic marks. Kept narrow on purpose: a mark should mean something.
 NUMBER = r"(\d[\d,.]*|[٠-٩][٠-٩٬٫]*|ألف|الف|مية|ميه|مليون|عشرة|عشرين|خمسين|مئة)"
 PATTERNS = {
